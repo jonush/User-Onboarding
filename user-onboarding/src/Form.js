@@ -21,7 +21,7 @@ const formSchema = yup.object().shape({
       .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/, 'Password must contain at least one Uppercase, one Lowercase, and a Number'),
     terms: yup
       .boolean()
-      .oneOf([true], 'Please accept the Terms and Conditions'),
+      .oneOf([true], 'Please accept the Terms and Conditions')
 })
 
 function Form(props) {
@@ -29,10 +29,10 @@ function Form(props) {
         name: '',
         email: '',
         password: '',
-        terms: '',
+        terms: false,
     })
 
-    const [errors,setErrors] = useState({
+    const [errors, setErrors] = useState({
         name: '',
         email: '',
         password: '',
@@ -51,11 +51,12 @@ function Form(props) {
 
     const onInputChange = event => {
         const name = event.target.name;
+        const type = event.target.type;
         const value = event.target.value;
         const checked = event.target.checked;
 
         event.persist();
-        
+
         yup
             .reach(formSchema, name)
             .validate(value)
@@ -63,19 +64,28 @@ function Form(props) {
                 setErrors({
                     ...errors,
                     [name]: ''
-                })
+                });
             })
             .catch(err => {
                 setErrors({
                     ...errors,
                     [name]: err.errors[0],
-                })
-            })
+                });
+            });
         
         setFormValues({
             ...formValues,
-            [name]: event.target.type === 'checkbox' ? checked : value,
+            [name]: value,
         });
+    }
+
+    const onCheckboxChange = event => {
+        const checked = event.target.checked;
+
+        setFormValues({
+            ...formValues,
+            [event.target.name]: checked,
+        })
     }
 
     const onSubmit = event => {
@@ -83,72 +93,77 @@ function Form(props) {
       
         axios.post(url, formValues)
             .then(res => {
-                console.log('Data was posted');
+                console.log('Post request was successful');
                 setUsers([...users, res.data]);
-
-                setFormValues({
-                    name: '',
-                    email: '',
-                    password: '',
-                    terms: '',
-                });
             })
             .catch(err => {
                 console.log(err);
                 debugger
             })
+
+        setFormValues({
+            name: '',
+            email: '',
+            password: '',
+            terms: '',
+        });
       }
 
     return (
-        <div>
+        <div className='wrapper'>
+            <div className='card'>
+                <form className="form">
+                    <h2>Add a new user:</h2>
 
-            <form className="form">
-                <h2>Add a new user:</h2>
+                    <div className="errors">
+                        {errors.name}
+                        {errors.email}
+                        {errors.password}
+                        {errors.terms}
+                    </div>
 
-                <div className="errors">
-                    {errors.name}
-                    {errors.email}
-                    {errors.password}
-                    {errors.terms}
-                </div>
+                    <label className='text-box'>
+                        Name:&nbsp;
+                        <input
+                        name='name'
+                        value={formValues.name}
+                        onChange={onInputChange} />
+                    </label>
 
-                <label>
-                    Name:&nbsp;
-                    <input
-                    name='name'
-                    value={formValues.name}
-                    onChange={onInputChange} />
-                </label>
+                    <label className='text-box'>
+                        Email:&nbsp;
+                        <input
+                        name='email'
+                        value={formValues.email}
+                        onChange={onInputChange} />
+                    </label>
 
-                <label>
-                    Email:&nbsp;
-                    <input
-                    name='email'
-                    value={formValues.email}
-                    onChange={onInputChange} />
-                </label>
+                    <label className='text-box'>
+                        Password:&nbsp;
+                        <input
+                        name='password'
+                        value={formValues.password}
+                        onChange={onInputChange} />
+                    </label>
 
-                <label>
-                    Password:&nbsp;
-                    <input
-                    name='password'
-                    value={formValues.password}
-                    onChange={onInputChange} />
-                </label>
+                    <label>
+                        <input
+                        className="terms"
+                        name='terms'
+                        onChange={onCheckboxChange}
+                        checked={formValues.terms}
+                        type='checkbox' />
+                        I agree to the Terms and Conditions
+                    </label>
 
-                <label>
-                    <input
-                    name='terms'
-                    onChange={onInputChange}
-                    value={formValues.terms}
-                    type='checkbox' />
-                    I agree to the Terms and Conditions
-                </label>
+                    <button onClick={onSubmit} disabled={formDisabled}>Add User</button>
+                </form>
+            </div>
 
-                <button onClick={onSubmit} disabled={formDisabled}>Add User</button>
-            </form>
-
-            <pre>{JSON.stringify(users, null, 2)}</pre>
+            <div className='details'>
+                <h2>Users</h2>
+                <pre >{JSON.stringify(users, null, 2)}</pre>
+            </div>
         </div>
     );
   }
