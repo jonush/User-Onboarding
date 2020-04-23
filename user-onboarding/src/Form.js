@@ -19,6 +19,9 @@ const formSchema = yup.object().shape({
       .min(6, 'Password must contain at least 6 characters.')
       .required('Please enter a password.')
       .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/, 'Password must contain at least one Uppercase, one Lowercase, and a Number'),
+    role: yup
+      .string()
+      .required('Please select a role.'),
     terms: yup
       .boolean()
       .oneOf([true], 'Please accept the Terms and Conditions')
@@ -29,6 +32,7 @@ function Form(props) {
         name: '',
         email: '',
         password: '',
+        role: '',
         terms: false,
     })
 
@@ -36,6 +40,7 @@ function Form(props) {
         name: '',
         email: '',
         password: '',
+        role: '',
         terms: '',
       })
 
@@ -51,9 +56,7 @@ function Form(props) {
 
     const onInputChange = event => {
         const name = event.target.name;
-        const type = event.target.type;
         const value = event.target.value;
-        const checked = event.target.checked;
 
         event.persist();
 
@@ -105,6 +108,7 @@ function Form(props) {
             name: '',
             email: '',
             password: '',
+            role: '',
             terms: '',
         });
       }
@@ -119,6 +123,7 @@ function Form(props) {
                         {errors.name}
                         {errors.email}
                         {errors.password}
+                        {errors.role}
                         {errors.terms}
                     </div>
 
@@ -144,6 +149,22 @@ function Form(props) {
                         name='password'
                         value={formValues.password}
                         onChange={onInputChange} />
+                    </label>
+
+                    <label className="role">
+                        Role:&nbsp;
+                        <select
+                            name='role'
+                            value={formValues.role}
+                            onChange={onInputChange}
+                        >
+                            <option>Select a Role</option>
+                            <option value='Front-end Web Developer'>Front-end Web Developer</option>
+                            <option value='Back-end Web Developer'>Back-end Web Developer</option>
+                            <option value='Designer'>Designer</option>
+                            <option value='Data Scientist'>Data Scientist</option>
+                            <option value='Product Manager'>Product Manager</option>
+                        </select>
                     </label>
 
                     <label>
