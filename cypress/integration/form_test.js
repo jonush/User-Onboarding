@@ -23,7 +23,7 @@ describe('User Onboarding', () => {
         cy.get('input[name="email"]')
             .type(email)
             // to verify that form validation is working
-            //.type('test123@gmailcom')
+            //.type('test2gmail.com')
             .should('have.value', email)
 
         // inputs a valid password
